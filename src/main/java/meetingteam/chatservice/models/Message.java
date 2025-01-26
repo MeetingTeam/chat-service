@@ -29,10 +29,13 @@ public class Message {
 
     private String channelId;
 
+    private String teamId;
+
     private String recipientId;
 
     private String parentMessageId;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MessageType type;
 
@@ -55,6 +58,7 @@ public class Message {
     @Convert(converter= ReminderConverter.class)
     private Reminder reminder;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 }
 

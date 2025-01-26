@@ -1,9 +1,14 @@
 package meetingteam.chatservice.models;
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 public class Voting {
+    private String title;
+
     private Boolean isSingleAnswer=false;
 
     private Boolean isBlocked=false;
