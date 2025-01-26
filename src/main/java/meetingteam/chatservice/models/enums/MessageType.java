@@ -8,6 +8,5 @@ public enum MessageType {
     VIDEO,
     AUDIO,
     VOTING,
-    REMINDER,
-    NOTIFICATION
+    REMINDER
 }

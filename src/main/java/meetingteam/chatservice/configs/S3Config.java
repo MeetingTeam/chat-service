@@ -6,12 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
-public class AwsServicesConfig {
+public class S3Config {
     @Value("${aws.access-key}")
     private String awsAccessKey;
 
@@ -40,14 +39,6 @@ public class AwsServicesConfig {
         return S3Presigner.builder()
                 .credentialsProvider(credentialsProvider())
                 .region(Region.of(awsRegion))
-                .build();
-    }
-
-    @Bean
-    public DynamoDbClient dynamoDbClient() {
-        return DynamoDbClient.builder()
-                .region(Region.of(awsRegion))
-                .credentialsProvider(credentialsProvider())
                 .build();
     }
 }
