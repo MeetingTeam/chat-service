@@ -19,7 +19,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isFriend(String userId, String friendId) {
         URI uri= UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.userServiceUrl())
-                .path("/friend/private/is-friend?userId="+userId+"&friendId="+friendId)
+                .path("/friend/private/is-friend")
+                .queryParam("userId", userId)
+                .queryParam("friendId", friendId)
                 .build().toUri();
 
         return restClient.get()

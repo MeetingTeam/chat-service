@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VotingEvent {
+public class Event {
     private String content;
 
     private LocalDateTime createdAt;

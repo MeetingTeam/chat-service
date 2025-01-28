@@ -17,5 +17,5 @@ public class Voting {
 
     private List<VotingOption> options;
 
-    private List<VotingEvent> events;
+    private List<Event> events;
 }

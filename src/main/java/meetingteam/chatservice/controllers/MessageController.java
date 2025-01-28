@@ -23,7 +23,7 @@ public class MessageController {
         return ResponseEntity.ok(messageService.receiveMessage(messageDto));
     }
 
-    @PutMapping("/reaction/{messageId}")
+    @PutMapping("/reaction")
     public ResponseEntity<Message> reactMessage(
             @RequestBody @Valid CreateReactionDto reactionDto){
         return ResponseEntity.ok(messageService.reactMessage(reactionDto.getMessageId(), reactionDto.getEmojiCode()));

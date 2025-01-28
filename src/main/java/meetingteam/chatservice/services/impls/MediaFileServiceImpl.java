@@ -5,6 +5,7 @@ import meetingteam.chatservice.dtos.MediaFile.CreateMediaFile;
 import meetingteam.chatservice.models.MediaFile;
 import meetingteam.chatservice.models.Message;
 import meetingteam.chatservice.services.MediaFileService;
+import meetingteam.commonlibrary.exceptions.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -30,16 +31,18 @@ public class MediaFileServiceImpl implements MediaFileService {
     private String bucketName;
 
     public void handleFileMessage(Message message) {
-        String folder=message.getRecipientId()!=null?message.getRecipientId():message.getTeamId();
-        String fileName= message.getMediaFile().getFileName()+"_"+rand.nextInt(10000)+
+        if(message.getMediaFile()==null)
+            throw new BadRequestException("MediaFile is required when creating file message");
+
+        String fileName= message.getMediaFile().getFileName()+"_"+rand.nextInt(100000)+
                 "."+message.getMediaFile().getFileType();
-        String preSignedUrl= generatePreSignedUrl(folder, fileName);
+        String preSignedUrl= generatePreSignedUrl(fileName);
 
         message.getMediaFile().setFileName(fileName);
-        message.getMediaFile().setFileUrl(preSignedUrl);
+        message.getMediaFile().setFileUrl(preSignedUrl.split("\\?")[0]);
     }
 
-    public String generatePreSignedUrl(String folder,String fileName){
+    public String generatePreSignedUrl(String fileName){
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)

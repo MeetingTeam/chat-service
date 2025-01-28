@@ -12,6 +12,9 @@ public class RestClientConfig {
     public RestClient getRestClient(RestClient.Builder restClientBuilder) {
         return restClientBuilder
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+
+                .requestInterceptors(request -> {
+                })
                 .build();
     }
 }

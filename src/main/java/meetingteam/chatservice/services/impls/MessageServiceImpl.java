@@ -50,7 +50,7 @@ public class MessageServiceImpl implements MessageService {
                     throw new BadRequestException("Content is required for TEXT message");
                 break;
             case VOTING:
-                votingService.handleMessage(message, messageDto.getUsername());
+                votingService.handleMessage(message, messageDto);
                 break;
             case REMINDER:
                 reminderService.handleMessage(message);
