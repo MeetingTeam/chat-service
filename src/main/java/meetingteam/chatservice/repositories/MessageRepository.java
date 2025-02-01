@@ -1,6 +1,7 @@
 package meetingteam.chatservice.repositories;
 
 import meetingteam.chatservice.models.Message;
+import meetingteam.commonlibrary.repositories.BaseRepository;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

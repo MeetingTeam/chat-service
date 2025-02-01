@@ -9,12 +9,9 @@ import meetingteam.chatservice.models.enums.MessageType;
 import meetingteam.chatservice.repositories.MessageRepository;
 import meetingteam.chatservice.services.*;
 import meetingteam.chatservice.utils.PageUtil;
-import meetingteam.chatservice.utils.WebsocketUtil;
-import meetingteam.commonlibrary.dtos.PagedResponseDto;
 import meetingteam.commonlibrary.exceptions.BadRequestException;
 import meetingteam.commonlibrary.utils.AuthUtil;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -32,8 +29,8 @@ public class MessageServiceImpl implements MessageService {
     private final MediaFileService mediaFileService;
     private final UserService userService;
     private final TeamService teamService;
+    private final RabbitmqService rabbitmqService;
     private final ModelMapper modelMapper;
-    private final WebsocketUtil websocketUtil;
 
     @Override
     public Message receiveMessage(CreateMessageDto messageDto) {
@@ -63,7 +60,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         var savedMessage=messageRepo.save(message);
-        websocketUtil.broadcastMessage(savedMessage);
+        rabbitmqService.broadcastMessage(savedMessage);
         return savedMessage;
     }
 
@@ -93,7 +90,7 @@ public class MessageServiceImpl implements MessageService {
         message.setType(MessageType.UNSEND);
 
         var savedMessage=messageRepo.save(message);
-        websocketUtil.broadcastMessage(savedMessage);
+        rabbitmqService.broadcastMessage(savedMessage);
         return savedMessage;
     }
 
@@ -120,7 +117,7 @@ public class MessageServiceImpl implements MessageService {
         message.setReactions(reactions);
 
         messageRepo.save(message);
-        websocketUtil.broadcastMessage(message);
+        rabbitmqService.broadcastMessage(message);
         return message;
     }
 

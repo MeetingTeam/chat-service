@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import meetingteam.chatservice.models.Message;
 import meetingteam.chatservice.models.enums.MessageType;
 import meetingteam.chatservice.repositories.MessageRepository;
+import meetingteam.chatservice.services.RabbitmqService;
 import meetingteam.chatservice.services.ReminderService;
-import meetingteam.chatservice.utils.WebsocketUtil;
 import meetingteam.commonlibrary.exceptions.BadRequestException;
 import meetingteam.commonlibrary.utils.AuthUtil;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReminderServiceImpl implements ReminderService {
     private final MessageRepository messageRepo;
-    private final WebsocketUtil websocketUtil;
+    private final RabbitmqService rabbitmqService;
 
     public void handleMessage(Message message){
         if(message.getReminder()==null)
@@ -32,8 +32,7 @@ public class ReminderServiceImpl implements ReminderService {
             throw new BadRequestException("You are not allowed to close this vote");
 
 
-
         messageRepo.save(message);
-        websocketUtil.broadcastMessage(message);
+        rabbitmqService.broadcastMessage(message);
     }
 }

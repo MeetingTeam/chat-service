@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class CreateMessageDto {
+    private String teamId;
+
     private String channelId;
 
     private String recipientId;

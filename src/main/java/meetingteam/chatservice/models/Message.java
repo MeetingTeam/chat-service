@@ -22,6 +22,8 @@ public class Message {
 
     private String senderId;
 
+    private String teamId;
+
     private String channelId;
 
     private String recipientId;

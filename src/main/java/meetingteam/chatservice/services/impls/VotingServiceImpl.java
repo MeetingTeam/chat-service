@@ -7,8 +7,8 @@ import meetingteam.chatservice.models.Event;
 import meetingteam.chatservice.models.VotingOption;
 import meetingteam.chatservice.models.enums.MessageType;
 import meetingteam.chatservice.repositories.MessageRepository;
+import meetingteam.chatservice.services.RabbitmqService;
 import meetingteam.chatservice.services.VotingService;
-import meetingteam.chatservice.utils.WebsocketUtil;
 import meetingteam.commonlibrary.exceptions.BadRequestException;
 import meetingteam.commonlibrary.utils.AuthUtil;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VotingServiceImpl implements VotingService {
     private final MessageRepository messageRepo;
-    private final WebsocketUtil websocketUtil;
+    private final RabbitmqService rabbitmqService;
 
     public void handleMessage(Message message, CreateMessageDto messageDto) {
         if(messageDto.getUsername()==null)
@@ -75,7 +75,7 @@ public class VotingServiceImpl implements VotingService {
         message.setVoting(voting);
         messageRepo.save(message);
 
-        websocketUtil.broadcastMessage(message);
+        rabbitmqService.broadcastMessage(message);
     }
 
     @Override
@@ -96,6 +96,6 @@ public class VotingServiceImpl implements VotingService {
         message.getVoting().getEvents().add(event);
 
         messageRepo.save(message);
-        websocketUtil.broadcastMessage(message);
+        rabbitmqService.broadcastMessage(message);
     }
 }
