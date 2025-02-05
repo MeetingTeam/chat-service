@@ -8,9 +8,9 @@ import meetingteam.chatservice.models.Reaction;
 import meetingteam.chatservice.models.enums.MessageType;
 import meetingteam.chatservice.repositories.MessageRepository;
 import meetingteam.chatservice.services.*;
-import meetingteam.chatservice.utils.PageUtil;
 import meetingteam.commonlibrary.exceptions.BadRequestException;
 import meetingteam.commonlibrary.utils.AuthUtil;
+import meetingteam.commonlibrary.utils.PageUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,11 +35,19 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Message receiveMessage(CreateMessageDto messageDto) {
         var message = modelMapper.map(messageDto, Message.class);
-        if(message.getRecipientId()!=null)
+
+        String userId= AuthUtil.getUserId();
+        if(message.getRecipientId()!=null){
+            if(!userService.isFriend(userId, message.getRecipientId()))
+                throw new AccessDeniedException("You are not friend of the recipient");
             message.setChannelId(null);
-        else if(message.getChannelId()==null)
-            throw new BadRequestException("Either RecipientId or ChannelId must not be null");
-        message.setSenderId(AuthUtil.getUserId());
+        }
+        else if(message.getChannelId()!=null){
+            if(!teamService.isMemberOfTeam(userId, message.getTeamId(), message.getChannelId()))
+                throw new AccessDeniedException("You are not member of the team");
+        }
+        else throw new BadRequestException("Either RecipientId or ChannelId must not be null");
+        message.setSenderId(userId);
 
         switch (message.getType()) {
             case TEXT:
@@ -124,7 +132,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<Message> getTextChannelMessages(Integer receivedMessageNum, String channelId) {
         String userId=AuthUtil.getUserId();
-        if(!teamService.isMemberOfTeam(userId, channelId))
+        if(!teamService.isMemberOfTeam(userId, null, channelId))
             throw new AccessDeniedException("You do not have permission to read messages from the given channel");
 
         int pageSize= PageUtil.findBestPageSize(receivedMessageNum);

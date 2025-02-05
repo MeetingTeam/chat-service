@@ -17,12 +17,13 @@ public class TeamServiceImpl implements TeamService {
     private final RestClient restClient;
 
     @Override
-    public boolean isMemberOfTeam(String userId, String channelId) {
-        URI uri= UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.teamServiceUrl())
+    public boolean isMemberOfTeam(String userId, String teamId, String channelId) {
+        var uriBuilder= UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.teamServiceUrl())
                 .path("/team-member/private/is-member-of-team")
-                .queryParam("userId", userId)
-                .queryParam("channelId", channelId)
-                .build().toUri();
+                .queryParam("userId", userId);
+        if(teamId!=null) uriBuilder.queryParam("teamId", teamId);
+        if(channelId!=null) uriBuilder.queryParam("channelId", channelId);
+        var uri = uriBuilder.build().toUri();
 
         return restClient.get()
                 .uri(uri)
