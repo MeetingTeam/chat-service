@@ -2,6 +2,7 @@ package meetingteam.chatservice.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import meetingteam.chatservice.dtos.Message.CreateVotingMessageDto;
 import meetingteam.chatservice.dtos.Voting.ChooseOptionDto;
 import meetingteam.chatservice.services.VotingService;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class VotingController {
     private final VotingService votingService;
+
+    @PostMapping
+    public ResponseEntity<Void> createVoting(
+            @RequestBody @Valid CreateVotingMessageDto messageDto){
+        votingService.createVoting(messageDto);
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/choose-option")
     public ResponseEntity<Void> chooseOption(

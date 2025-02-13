@@ -1,7 +1,7 @@
 package meetingteam.chatservice.services.impls;
 
 import lombok.RequiredArgsConstructor;
-import meetingteam.chatservice.dtos.Message.CreateMessageDto;
+import meetingteam.chatservice.dtos.Message.CreateTextMessageDto;
 import meetingteam.chatservice.models.MediaFile;
 import meetingteam.chatservice.models.Message;
 import meetingteam.chatservice.models.Reaction;
@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,19 +25,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepo;
-    private final VotingService votingService;
-    private final ReminderService reminderService;
     private final MediaFileService mediaFileService;
     private final UserService userService;
     private final TeamService teamService;
-    private final RabbitmqService rabbitmqService;
+    private final WebsocketService websocketService;
     private final ModelMapper modelMapper;
 
     @Override
-    public Message receiveMessage(CreateMessageDto messageDto) {
+    public void receiveTextMessage(CreateTextMessageDto messageDto) {
         var message = modelMapper.map(messageDto, Message.class);
-
         String userId= AuthUtil.getUserId();
+
         if(message.getRecipientId()!=null){
             if(!userService.isFriend(userId, message.getRecipientId()))
                 throw new AccessDeniedException("You are not friend of the recipient");
@@ -47,29 +46,13 @@ public class MessageServiceImpl implements MessageService {
                 throw new AccessDeniedException("You are not member of the team");
         }
         else throw new BadRequestException("Either RecipientId or ChannelId must not be null");
-        message.setSenderId(userId);
 
-        switch (message.getType()) {
-            case TEXT:
-                if(message.getContent()==null)
-                    throw new BadRequestException("Content is required for TEXT message");
-                break;
-            case VOTING:
-                votingService.handleMessage(message, messageDto);
-                break;
-            case REMINDER:
-                reminderService.handleMessage(message);
-                break;
-            case AUDIO, VIDEO, IMAGE, DOCUMENT:
-                mediaFileService.handleFileMessage(message);
-                break;
-            default:
-                throw new BadRequestException("Unsupported message type");
-        }
+        message.setSenderId(userId);
+        message.setCreatedAt(LocalDateTime.now());
+        message.setType(MessageType.TEXT);
 
         var savedMessage=messageRepo.save(message);
-        rabbitmqService.broadcastMessage(savedMessage);
-        return savedMessage;
+        websocketService.broadcastMessage(savedMessage);
     }
 
     @Override
@@ -98,7 +81,7 @@ public class MessageServiceImpl implements MessageService {
         message.setType(MessageType.UNSEND);
 
         var savedMessage=messageRepo.save(message);
-        rabbitmqService.broadcastMessage(savedMessage);
+        websocketService.broadcastMessage(savedMessage);
         return savedMessage;
     }
 
@@ -107,8 +90,6 @@ public class MessageServiceImpl implements MessageService {
         Message message= messageRepo.findById(messageId).orElseThrow(()->new BadRequestException("Message not found"));
         String userId=AuthUtil.getUserId();
         Reaction reaction= new Reaction(userId, emojiCode);
-        if(!message.getSenderId().equals(userId))
-            throw new AccessDeniedException("You are not authorized to modify this message");
 
         var reactions=message.getReactions();
         if(reactions==null) reactions=new ArrayList();
@@ -125,7 +106,7 @@ public class MessageServiceImpl implements MessageService {
         message.setReactions(reactions);
 
         messageRepo.save(message);
-        rabbitmqService.broadcastMessage(message);
+        websocketService.broadcastMessage(message);
         return message;
     }
 
@@ -162,7 +143,8 @@ public class MessageServiceImpl implements MessageService {
         List<MediaFile> mediaFiles= messageRepo.getFileMessagesByChannelId(channelId).stream()
                         .map(message->message.getMediaFile())
                         .toList();
-        mediaFileService.deleteMediaFiles(mediaFiles);
+        if(mediaFiles!=null&&!mediaFiles.isEmpty())
+            mediaFileService.deleteMediaFiles(mediaFiles);
         messageRepo.deleteByChannelId(channelId);
     }
 }

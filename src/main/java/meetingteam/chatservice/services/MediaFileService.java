@@ -1,13 +1,14 @@
 package meetingteam.chatservice.services;
 
+import meetingteam.chatservice.dtos.MediaFile.CreatePresignedUrlDto;
+import meetingteam.chatservice.dtos.Message.CreateFileMessageDto;
 import meetingteam.chatservice.models.MediaFile;
-import meetingteam.chatservice.models.Message;
 
 import java.util.List;
 
 public interface MediaFileService {
-    void handleFileMessage(Message message);
-    String generatePreSignedUrl(String fileName);
+    String generateS3PresignedUrl(CreatePresignedUrlDto presignedUrlDto);
+    void receiveFileMessage(CreateFileMessageDto messageDto);
     void deleteMediaFile(MediaFile mediaFile);
     void deleteMediaFiles(List<MediaFile> mediaFiles);
 }

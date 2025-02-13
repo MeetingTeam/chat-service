@@ -7,11 +7,11 @@ import lombok.Data;
 @Data
 public class CreateMediaFile {
     @NotBlank
-    private String fileName;
+    private String fileUrl;
 
     @NotBlank
     private String fileType;
 
     @Min(1)
-    private Integer fileSizeInBytes;
+    private Long fileSizeInBytes;
 }

@@ -1,16 +1,21 @@
 package meetingteam.chatservice.services.impls;
 
 import lombok.RequiredArgsConstructor;
-import meetingteam.chatservice.dtos.Message.CreateMessageDto;
+import meetingteam.chatservice.dtos.Message.CreateTextMessageDto;
+import meetingteam.chatservice.dtos.Message.CreateVotingMessageDto;
 import meetingteam.chatservice.models.Message;
 import meetingteam.chatservice.models.Event;
 import meetingteam.chatservice.models.VotingOption;
 import meetingteam.chatservice.models.enums.MessageType;
 import meetingteam.chatservice.repositories.MessageRepository;
 import meetingteam.chatservice.services.RabbitmqService;
+import meetingteam.chatservice.services.TeamService;
 import meetingteam.chatservice.services.VotingService;
+import meetingteam.chatservice.services.WebsocketService;
 import meetingteam.commonlibrary.exceptions.BadRequestException;
 import meetingteam.commonlibrary.utils.AuthUtil;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,9 +26,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VotingServiceImpl implements VotingService {
     private final MessageRepository messageRepo;
-    private final RabbitmqService rabbitmqService;
+    private final WebsocketService websocketService;
+    private final TeamService teamService;
+    private final ModelMapper modelMapper;
 
-    public void handleMessage(Message message, CreateMessageDto messageDto) {
+    public void createVoting(CreateVotingMessageDto messageDto){
+        var message = modelMapper.map(messageDto, Message.class);
+
+        String userId= AuthUtil.getUserId();
+        if(!teamService.isMemberOfTeam(userId, message.getTeamId(), message.getChannelId()))
+            throw new AccessDeniedException("You are not member of the team");
+        message.setSenderId(userId);
+        message.setType(MessageType.VOTING);
+        message.setCreatedAt(LocalDateTime.now());
+
         if(messageDto.getUsername()==null)
             throw new BadRequestException("Username is required when creating vote message");
         if(message.getVoting()==null)
@@ -38,6 +54,9 @@ public class VotingServiceImpl implements VotingService {
 
         var VotingEvent=new Event(messageDto.getUsername()+" has created the vote",LocalDateTime.now());
         message.getVoting().setEvents(List.of(VotingEvent));
+
+        var savedMessage=messageRepo.save(message);
+        websocketService.broadcastMessage(savedMessage);
     }
 
     @Override
@@ -75,7 +94,7 @@ public class VotingServiceImpl implements VotingService {
         message.setVoting(voting);
         messageRepo.save(message);
 
-        rabbitmqService.broadcastMessage(message);
+        websocketService.broadcastMessage(message);
     }
 
     @Override
@@ -96,6 +115,6 @@ public class VotingServiceImpl implements VotingService {
         message.getVoting().getEvents().add(event);
 
         messageRepo.save(message);
-        rabbitmqService.broadcastMessage(message);
+        websocketService.broadcastMessage(message);
     }
 }

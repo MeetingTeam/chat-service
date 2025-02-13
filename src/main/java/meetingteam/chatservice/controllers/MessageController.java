@@ -2,7 +2,7 @@ package meetingteam.chatservice.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import meetingteam.chatservice.dtos.Message.CreateMessageDto;
+import meetingteam.chatservice.dtos.Message.CreateTextMessageDto;
 import meetingteam.chatservice.dtos.Message.CreateReactionDto;
 import meetingteam.chatservice.models.Message;
 import meetingteam.chatservice.services.MessageService;
@@ -17,10 +17,11 @@ import java.util.List;
 public class MessageController {
     private final MessageService messageService;
 
-    @PostMapping
-    public ResponseEntity<Message> receiveMessage(
-            @RequestBody @Valid CreateMessageDto messageDto){
-        return ResponseEntity.ok(messageService.receiveMessage(messageDto));
+    @PostMapping("/text_message")
+    public ResponseEntity<Message> receiveTextMessage(
+            @RequestBody @Valid CreateTextMessageDto messageDto){
+        messageService.receiveTextMessage(messageDto);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/reaction")
@@ -51,7 +52,7 @@ public class MessageController {
     }
 
     @DeleteMapping("/private/channel/{channelId}")
-    public ResponseEntity<List<Message>> getTextChannelMessages(
+    public ResponseEntity<Void> deleteMessagesByChannelId(
             @PathVariable("channelId") String channelId){
         messageService.deleteMessagesByChannelId(channelId);
         return ResponseEntity.ok().build();

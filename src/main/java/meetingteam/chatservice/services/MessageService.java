@@ -1,13 +1,12 @@
 package meetingteam.chatservice.services;
 
-import meetingteam.chatservice.dtos.Message.CreateMessageDto;
+import meetingteam.chatservice.dtos.Message.CreateTextMessageDto;
 import meetingteam.chatservice.models.Message;
-import meetingteam.chatservice.models.Reaction;
 
 import java.util.List;
 
 public interface MessageService {
-    Message receiveMessage(CreateMessageDto messageDto);
+    void receiveTextMessage(CreateTextMessageDto messageDto);
     Message unsendMessage(String messageId);
     Message reactMessage(String messageId, String emojiCode);
     List<Message> getTextChannelMessages(Integer receivedMessageNum, String channelId);
