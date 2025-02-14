@@ -55,6 +55,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(objectKey)
+                .tagging("isLinked=false")
                 .contentType(presignedUrlDto.getFileType())
                 .contentLength(presignedUrlDto.getFileSize())
                 .build();
@@ -102,11 +103,9 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     public void deleteMediaFile(MediaFile mediaFile){
         try{
-            String objectKey = URLEncoder.encode(mediaFile.getFileName(), StandardCharsets.UTF_8.toString());
-            System.out.println(objectKey);
             DeleteObjectRequest deleteRequest= DeleteObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(objectKey)
+                    .key(mediaFile.getFileName())
                     .build();
             s3Client.deleteObject(deleteRequest);
         }
@@ -118,7 +117,7 @@ public class MediaFileServiceImpl implements MediaFileService {
     public void deleteMediaFiles(List<MediaFile> mediaFiles){
         List<ObjectIdentifier> objectIdentifiers = mediaFiles.stream()
                 .map(mediaFile -> ObjectIdentifier.builder()
-                        .key(mediaFile.getFileName()).build())
+                            .key(mediaFile.getFileName()).build())
                 .collect(Collectors.toList());
 
         DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()

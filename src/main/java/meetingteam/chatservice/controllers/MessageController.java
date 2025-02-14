@@ -57,4 +57,11 @@ public class MessageController {
         messageService.deleteMessagesByChannelId(channelId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/private/team/{teamId}")
+    public ResponseEntity<Void> deleteMessagesByTeamId(
+            @PathVariable("teamId") String teamId){
+        messageService.deleteMessagesByTeamId(teamId);
+        return ResponseEntity.ok().build();
+    }
 }

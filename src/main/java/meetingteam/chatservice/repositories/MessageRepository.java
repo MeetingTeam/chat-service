@@ -13,5 +13,9 @@ public interface MessageRepository extends BaseRepository<Message, String> {
 
     List<Message> getFileMessagesByChannelId(String channelId);
 
+    List<Message> getFileMessagesByTeamId(String teamId);
+
     void deleteByChannelId(String channelId);
+
+    void deleteByTeamId(String teamId);
 }

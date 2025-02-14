@@ -147,4 +147,14 @@ public class MessageServiceImpl implements MessageService {
             mediaFileService.deleteMediaFiles(mediaFiles);
         messageRepo.deleteByChannelId(channelId);
     }
+
+    @Override
+    public void deleteMessagesByTeamId(String teamId) {
+        List<MediaFile> mediaFiles= messageRepo.getFileMessagesByTeamId(teamId).stream()
+                        .map(message->message.getMediaFile())
+                        .toList();
+        if(mediaFiles!=null&&!mediaFiles.isEmpty())
+            mediaFileService.deleteMediaFiles(mediaFiles);
+        messageRepo.deleteByTeamId(teamId);
+    }
 }

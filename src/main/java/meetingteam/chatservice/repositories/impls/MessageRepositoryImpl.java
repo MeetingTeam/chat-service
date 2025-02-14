@@ -77,9 +77,29 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public List<Message> getFileMessagesByTeamId(String teamId) {
+        Query query = new Query()
+                .addCriteria(Criteria.where("teamId").is(teamId)
+                        .and("type").in(Arrays.asList(
+                                MessageType.AUDIO,
+                                MessageType.IMAGE,
+                                MessageType.VIDEO,
+                                MessageType.DOCUMENT
+                        )));
+        return mongoTemplate.find(query, Message.class);
+    }
+
+    @Override
     public void deleteByChannelId(String channelId) {
         Query query = new Query()
                 .addCriteria(Criteria.where("channelId").is(channelId));
+        mongoTemplate.remove(query, Message.class);
+    }
+
+    @Override
+    public void deleteByTeamId(String teamId) {
+        Query query = new Query()
+                .addCriteria(Criteria.where("teamId").is(teamId));
         mongoTemplate.remove(query, Message.class);
     }
 }
