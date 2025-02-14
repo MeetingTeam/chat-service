@@ -11,4 +11,5 @@ public interface MediaFileService {
     void receiveFileMessage(CreateFileMessageDto messageDto);
     void deleteMediaFile(MediaFile mediaFile);
     void deleteMediaFiles(List<MediaFile> mediaFiles);
+    void addIsLinkedTag(String objectKey);
 }
