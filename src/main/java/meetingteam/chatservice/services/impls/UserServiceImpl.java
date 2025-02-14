@@ -1,9 +1,10 @@
 package meetingteam.chatservice.services.impls;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import meetingteam.chatservice.configs.ServiceUrlConfig;
 import meetingteam.chatservice.services.UserService;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,6 +18,8 @@ public class UserServiceImpl implements UserService {
     private final RestClient restClient;
 
     @Override
+    @Retry(name="restApi")
+    @CircuitBreaker(name="restCircuitBreaker")
     public boolean isFriend(String userId, String friendId) {
         URI uri= UriComponentsBuilder.fromHttpUrl(serviceUrlConfig.userServiceUrl())
                 .path("/friend/private/is-friend")
