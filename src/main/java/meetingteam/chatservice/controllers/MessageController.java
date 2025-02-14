@@ -7,6 +7,7 @@ import meetingteam.chatservice.dtos.Message.CreateReactionDto;
 import meetingteam.chatservice.models.Message;
 import meetingteam.chatservice.services.MessageService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,6 +52,7 @@ public class MessageController {
         return ResponseEntity.ok(messageService.getTextChannelMessages(receivedMessageNum,channelId));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/private/channel/{channelId}")
     public ResponseEntity<Void> deleteMessagesByChannelId(
             @PathVariable("channelId") String channelId){
@@ -58,6 +60,7 @@ public class MessageController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/private/team/{teamId}")
     public ResponseEntity<Void> deleteMessagesByTeamId(
             @PathVariable("teamId") String teamId){

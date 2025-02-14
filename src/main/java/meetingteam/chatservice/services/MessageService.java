@@ -12,4 +12,5 @@ public interface MessageService {
     List<Message> getTextChannelMessages(Integer receivedMessageNum, String channelId);
     List<Message> getPrivateMessages(Integer receivedMessageNum, String friendId);
     void deleteMessagesByChannelId(String channelId);
+    void deleteMessagesByTeamId(String teamId);
 }

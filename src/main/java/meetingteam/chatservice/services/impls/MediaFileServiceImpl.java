@@ -88,6 +88,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         if(!mediaFile.getFileUrl().startsWith(s3BaseUrl))
             throw new BadRequestException("Invalid Media file URL");
         mediaFile.setFileName(mediaFile.getFileUrl().substring(s3BaseUrl.length()));
+        addIsLinkedTag(mediaFile.getFileName());
 
         if(mediaFile.getFileType().startsWith("image"))
             message.setType(MessageType.IMAGE);
@@ -126,5 +127,18 @@ public class MediaFileServiceImpl implements MediaFileService {
                 .build();
 
         s3Client.deleteObjects(deleteRequest);
+    }
+
+    @Override
+    public void addIsLinkedTag(String objectKey) {
+        var tag=Tag.builder().key("islinked").value("true").build();
+        Tagging tagging= Tagging.builder().tagSet(tag).build();
+        PutObjectTaggingRequest putRequest = PutObjectTaggingRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .tagging(tagging)
+                .build();
+
+        s3Client.putObjectTagging(putRequest);
     }
 }
