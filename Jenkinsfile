@@ -6,8 +6,8 @@ def appRepoName = 'chat-service'
 def appRepoUrl = "${baseRepoUrl}/${appRepoName}.git"
 
 def k8SRepoName = 'k8s-repo'
-def k8SRepoUrl = "${originalRepoUrl}/${k8SRepoName}.git"
-def helmPath = "${k8SRepoName}/application/backend"
+def k8SRepoUrl = "${baseRepoUrl}/${k8SRepoName}.git"
+def helmPath = "${k8SRepoName}/application/${appRepoName}"
 def helmValueFile = "values.yaml"
 
 def dockerhubAccount = 'dockerhub'
