@@ -67,7 +67,6 @@ pipeline{
                                                             --cache-dir=/cache \
                                                             --registry-config=\$DOCKER_CONFIG/config.json
                                                             """
-                                                            }
                                                   }
                                         }
                               }
