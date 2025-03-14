@@ -57,15 +57,14 @@ pipeline{
                                                             )
                                                   ]) {
                                                             sh """
-                                                            export DOCKER_CONFIG=$(mktemp -d) && \
-                                                            echo '{ "auths": { "${DOCKER_REGISTRY}": { "auth": "'$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)'" } } }' > \$DOCKER_CONFIG/config.json && \
+                                                            echo '{ "auths": { "${DOCKER_REGISTRY}": { "auth": "'$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)'" } } }' > config.json
                                                             /kaniko/executor \
                                                             --context=${dockerfilePath} \
                                                             --dockerfile=${dockerfilePath}/Dockerfile \
                                                             --destination=${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${version} \
                                                             --cache=true \
                                                             --cache-dir=/cache \
-                                                            --registry-config=\$DOCKER_CONFIG/config.json
+                                                            --registry-config=config.json
                                                             """
                                                             }
                                                   }
