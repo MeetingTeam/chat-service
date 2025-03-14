@@ -56,7 +56,7 @@ pipeline{
                                                                       passwordVariable: 'DOCKER_PASS'
                                                             )
                                                   ]) {
-                                                            sh """
+                                                            sh """#!/bin/bash
                                                             echo '{ "auths": { "${DOCKER_REGISTRY}": { "auth": "'$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)'" } } }' > config.json
                                                             /kaniko/executor \
                                                             --context=${dockerfilePath} \
