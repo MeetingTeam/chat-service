@@ -1,16 +1,18 @@
 FROM openjdk:17-jdk-alpine
 
-## Change directory
+# Change directory
 WORKDIR /app
 
-## Create non-root user
+# Copy war file
+COPY target/chat-service-0.0.1-SNAPSHOT.war chat_service.war
+
+# Create non-root user
 RUN adduser -D chat_service
-RUN chown -R chat_service. /app
+RUN chown -R chat_service:chat_service /app
 USER chat_service
 
-## Copy war file and run app
-COPY target/chat-service-0.0.1-SNAPSHOT.war chat_service.war
-ENTRYPOINT ["java","-jar","chat_service.war"]
+# Run app
+ENTRYPOINT ["sh","-c","java -jar -Dspring.config.location=$CONFIG_PATH chat_service.war"]
 
-## Expose port 8082
+# Expose port 8082
 EXPOSE 8082

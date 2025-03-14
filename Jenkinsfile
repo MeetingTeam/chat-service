@@ -1,0 +1,76 @@
+def baseRepoUrl = 'https://github.com/MeetingTeam/'
+def mainBranch = 'feature/cicd'
+def devBranch = 'dev'
+
+def appRepoName = 'chat-service'
+def appRepoUrl = "${baseRepoUrl}/${appRepoName}.git"
+
+def k8SRepoName = 'k8s-repo'
+def k8SRepoUrl = "${originalRepoUrl}/${k8SRepoName}.git"
+def helmPath = "${k8SRepoName}/application/backend"
+def helmValueFile = "values.yaml"
+
+def dockerhubAccount = 'dockerhub'
+def githubAccount = 'github'
+
+def dockerfilePath = './'
+def migrationPath = 'src/main/resources/migration'
+def version = "v2.${BUILD_NUMBER}"
+
+pipeline{
+         agent {
+                    kubernetes {
+                              inheritFrom 'maven,kaniko'
+                    }
+          }
+          
+          environment {
+                    DOCKER_REGISTRY = 'https://registry-1.docker.io'
+                    DOCKER_IMAGE_NAME = 'hungtran679/mt_chat-service'
+          }
+          
+          stages{
+                    stage('unit test stage'){
+                              steps{
+                                        container('maven'){
+                                                  sh "mvn test"
+                                        }
+                              }
+                    }
+                    stage('build jar file'){
+                              when{ branch mainBranch }
+                              steps{
+                                        container('maven'){
+                                                  sh "mvn install -DskipTests=true"
+                                        }
+                              }
+                    }
+                    stage('build and push docker image'){
+                              when{ branch mainBranch }
+                              steps{
+                                        container('kaniko'){
+                                                   withCredentials([
+                                                            usernamePassword(
+                                                                      credentialsId: dockerhubAccount, 
+                                                                      usernameVariable: 'DOCKER_USER', 
+                                                                      passwordVariable: 'DOCKER_PASS'
+                                                            )
+                                                  ]) {
+                                                            sh """
+                                                            export DOCKER_CONFIG=$(mktemp -d) && \
+                                                            echo '{ "auths": { "${DOCKER_REGISTRY}": { "auth": "'$(echo -n "$DOCKER_USER:$DOCKER_PASS" | base64)'" } } }' > $DOCKER_CONFIG/config.json && \
+                                                            /kaniko/executor \
+                                                            --context=${dockerfilePath} \
+                                                            --dockerfile=${dockerfilePath}/Dockerfile \
+                                                            --destination=${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${version} \
+                                                            --cache=true \
+                                                            --cache-dir=/cache \
+                                                            --registry-config=$DOCKER_CONFIG/config.json
+                                                            """
+                                                            }
+                                                  }
+                                        }
+                              }
+                    }
+          }
+}
