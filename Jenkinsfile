@@ -20,7 +20,7 @@ def version = "v2.${BUILD_NUMBER}"
 pipeline{
          agent {
                     kubernetes {
-                              inheritFrom 'maven'
+                              inheritFrom 'springboot'
                     }
           }
           
@@ -69,6 +69,30 @@ pipeline{
                                                             """
                                                   }
                                         }
+                              }
+                    }
+                    stage('update k8s repo'){
+                              when{ branch mainBranch }
+                              steps {
+				withCredentials([
+                                                  usernamePassword(
+                                                            credentialsId: githubAccount, 
+                                                            passwordVariable: 'GIT_PWD', 
+                                                            usernameVariable: 'GIT_USER'
+                                                  )
+                                        ]) {
+                                                  sh """
+                                                  git clone ${k8SRepo} --branch ${k8SBranch}
+                                                  cd ${helmPath}
+                                                  sed -i 's|  tag: .*|  tag: "${version}"|' ${helmValueFile}
+
+                                                  git config --global user.email "kobiet@gmail.com"
+                                                  git config --global user.name "TeoTran"
+                                                  git add . 
+                                                  git commit -m "feat: update to version ${version}"
+                                                  git push https://${GIT_USER}:${GIT_PWD}@github.com/HungTran170904/${k8SRepoName}.git
+                                                  """		
+				}				
                               }
                     }
           }
