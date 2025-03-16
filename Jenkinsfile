@@ -83,6 +83,13 @@ pipeline{
                                         }
                               }
                     }
+                    stage('Quality Gate Check') {
+                              steps {
+                                        timeout(time: 5, unit: 'MINUTES') {
+                                                  waitForQualityGate(abortPipeline: true)
+                                        }
+                              }
+                    }
                     stage('build and push docker image'){
                               when{ branch mainBranch }
                               steps{
