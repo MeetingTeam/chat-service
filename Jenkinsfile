@@ -90,8 +90,7 @@ pipeline{
                                                                       --dockerfile=\${dockerfilePath}/Dockerfile \
                                                                       --destination=\${DOCKER_REGISTRY}/\${DOCKER_IMAGE_NAME}:\${version} \
                                                                       --cache=true \
-                                                                      --cache-dir=/cache \
-                                                                      --registry-config=/kaniko/.docker/config.json
+                                                                      --cache-dir=/cache
                                                             """
                                                   }
                                         }
