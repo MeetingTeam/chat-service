@@ -13,8 +13,10 @@ def helmValueFile = "values.yaml"
 def dockerhubAccount = 'dockerhub'
 def githubAccount = 'github'
 
+def dockerImageName = 'hungtran679/mt_chat-service'
 def dockerfilePath = '.'
-def migrationPath = 'src/main/resources/migration'
+
+
 def version = "v2.${BUILD_NUMBER}"
 
 pipeline{
@@ -25,8 +27,7 @@ pipeline{
           }
           
           environment {
-                    DOCKER_REGISTRY = 'https://registry-1.docker.io'
-                    DOCKER_IMAGE_NAME = 'hungtran679/mt_chat-service'
+                    DOCKER_REGISTRY = 'https://registry-1.docker.io'           
           }
           
           stages{
@@ -84,11 +85,11 @@ pipeline{
                                                             )
                                                   ]) {
                                                             sh """
-                                                                      echo "{ "auths": { "${DOCKER_REGISTRY}": { "auth": "$(echo -n ${DOCKER_USER}:${DOCKER_PASS} | base64)" } } }" > /kaniko/.docker/config.json
+                                                                      echo "{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "$(echo -n \${DOCKER_USER}:\${DOCKER_PASS} | base64)" } } }" > /kaniko/.docker/config.json
                                                                       /kaniko/executor \
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
-                                                                      --destination=${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${version} \
+                                                                      --destination=\${DOCKER_REGISTRY}/${dockerImageName}:${version} \
                                                                       --cache=true \
                                                                       --cache-dir=/cache
                                                             """
