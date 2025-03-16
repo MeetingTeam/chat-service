@@ -73,9 +73,11 @@ pipeline{
                               }
                     }
                     stage('code analysis'){
-                              container('maven'){
-                                        withSonarQubeEnv('SonarCloud') {
-                                                  sh 'mvn sonar:sonar'
+                              steps{
+                                        container('maven'){
+                                                  withSonarQubeEnv('SonarCloud') {
+                                                            sh 'mvn sonar:sonar'
+                                                  }
                                         }
                               }
                     }
