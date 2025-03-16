@@ -27,7 +27,7 @@ pipeline{
           }
           
           environment {
-                    DOCKER_REGISTRY = 'https://registry-1.docker.io'           
+                    DOCKER_REGISTRY = 'registry-1.docker.io'           
           }
           
           stages{
