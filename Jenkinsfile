@@ -85,13 +85,13 @@ pipeline{
                                                             )
                                                   ]) {
                                                             sh """
-                                                                      echo "{ \\"auths\\": { \\"\${DOCKER_REGISTRY}\\": { \\"auth\\": \\"\$(echo -n \${DOCKER_USER}:\${DOCKER_PASS} | base64)\\" } } }" > /kaniko/.docker/config.json
+                                                                      secretBase64=\$(echo -n \"\${DOCKER_USER}:\${DOCKER_PASS}\" | base64)
+                                                                      echo "{ \\"auths\\": { \\"\${DOCKER_REGISTRY}\\": { \\"auth\\": \\"\$secretBase64\\" } } }" > /kaniko/.docker/config.json
                                                                       /kaniko/executor \
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
                                                                       --destination=\${DOCKER_REGISTRY}/${dockerImageName}:${version} \
-                                                                      --cache=true \
-                                                                      --cache-dir=/cache
+                                                                      --cache=true
                                                             """
                                                   }
                                         }
