@@ -41,8 +41,15 @@ pipeline{
                                                             )
                                                   ]) {
                                                            sh """
-                                                                      export GIT_PASS=\${GIT_PASS}
-                                                                      export GIT_USER=\${GIT_USER}
+                                                                      echo "<settings>
+                                                                                          <servers>
+                                                                                                    <server>
+                                                                                                              <id>github</id>
+                                                                                                              <username>\${GIT_USER}</username>
+                                                                                                              <password>\${GIT_PASS}</password>
+                                                                                                    </server>
+                                                                                          </servers>
+                                                                                </settings>"
                                                                       mvn test
                                                            """
                                                   }                                        
