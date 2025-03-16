@@ -36,7 +36,7 @@ pipeline{
                                                   withCredentials([
                                                             usernamePassword(
                                                                       credentialsId: githubAccount, 
-                                                                      passwordVariable: 'GIT_PWD', 
+                                                                      passwordVariable: 'GIT_PASS', 
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
@@ -49,7 +49,15 @@ pipeline{
                               when{ branch mainBranch }
                               steps{
                                         container('maven'){
-                                                  sh "mvn install -DskipTests=true"
+                                                   withCredentials([
+                                                            usernamePassword(
+                                                                      credentialsId: githubAccount, 
+                                                                      passwordVariable: 'GIT_PASS', 
+                                                                      usernameVariable: 'GIT_USER'
+                                                            )
+                                                  ]) {
+                                                            sh "mvn install -DskipTests=true -Dusername=\$GIT_USER -Dpassword=\$GIT_PASS"
+                                                  }
                                         }
                               }
                     }
@@ -85,7 +93,7 @@ pipeline{
 				withCredentials([
                                                   usernamePassword(
                                                             credentialsId: githubAccount, 
-                                                            passwordVariable: 'GIT_PWD', 
+                                                            passwordVariable: 'GIT_PASS', 
                                                             usernameVariable: 'GIT_USER'
                                                   )
                                         ]) {
@@ -98,7 +106,7 @@ pipeline{
                                                   git config --global user.name "TeoTran"
                                                   git add . 
                                                   git commit -m "feat: update to version ${version}"
-                                                  git push https://${GIT_USER}:${GIT_PWD}@github.com/HungTran170904/${k8SRepoName}.git
+                                                  git push https://${GIT_USER}:${GIT_PASS}@github.com/HungTran170904/${k8SRepoName}.git
                                                   """		
 				}				
                               }
