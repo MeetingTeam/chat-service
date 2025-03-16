@@ -33,7 +33,15 @@ pipeline{
                     stage('unit test stage'){
                               steps{
                                         container('maven'){
-                                                  sh "mvn test"
+                                                  withCredentials([
+                                                            usernamePassword(
+                                                                      credentialsId: githubAccount, 
+                                                                      passwordVariable: 'GIT_PWD', 
+                                                                      usernameVariable: 'GIT_USER'
+                                                            )
+                                                  ]) {
+                                                            sh "mvn test -Dusername=\$GIT_USER -Dpassword=\$GIT_PASS"
+                                                  }
                                         }
                               }
                     }

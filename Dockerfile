@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-alpine
+FROM docker.io/library/openjdk:17-jdk-alpine
 
 # Change directory
 WORKDIR /app
