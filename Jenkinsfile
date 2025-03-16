@@ -16,7 +16,7 @@ def githubAccount = 'github'
 def dockerImageName = 'hungtran679/mt_chat-service'
 def dockerfilePath = '.'
 
-def sonarCloudOrganization = meetingteam
+def sonarCloudOrganization = 'meetingteam'
 
 
 def version = "v2.${BUILD_NUMBER}"
