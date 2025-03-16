@@ -49,7 +49,7 @@ pipeline{
                                                                                                               <password>\${GIT_PASS}</password>
                                                                                                     </server>
                                                                                           </servers>
-                                                                                </settings>"
+                                                                                </settings>" > /root/.m2/settings.xml
                                                                       mvn test
                                                            """
                                                   }                                        
