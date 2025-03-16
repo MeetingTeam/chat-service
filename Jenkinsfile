@@ -86,9 +86,9 @@ pipeline{
                                                             sh """
                                                                       echo '{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "\$DOCKER_USER:\$DOCKER_PASS" } } }' > /kaniko/.docker/config.json
                                                                       /kaniko/executor \
-                                                                      --context=\${dockerfilePath} \
-                                                                      --dockerfile=\${dockerfilePath}/Dockerfile \
-                                                                      --destination=\${DOCKER_REGISTRY}/\${DOCKER_IMAGE_NAME}:\${version} \
+                                                                      --context=${dockerfilePath} \
+                                                                      --dockerfile=${dockerfilePath}/Dockerfile \
+                                                                      --destination=${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${version} \
                                                                       --cache=true \
                                                                       --cache-dir=/cache
                                                             """
