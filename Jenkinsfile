@@ -1,4 +1,4 @@
-def baseRepoUrl = 'https://github.com/MeetingTeam/'
+def baseRepoUrl = 'https://github.com/MeetingTeam'
 def mainBranch = 'feature/cicd'
 def devBranch = 'dev'
 
@@ -58,7 +58,6 @@ pipeline{
                               }
                     }
                     stage('build jar file'){
-                              when{ branch mainBranch }
                               steps{
                                         container('maven'){
                                                    withCredentials([
@@ -70,6 +69,13 @@ pipeline{
                                                   ]) {
                                                             sh "mvn clean package -DskipTests=true"
                                                   }
+                                        }
+                              }
+                    }
+                    stage('code analysis'){
+                              container('maven'){
+                                        withSonarQubeEnv('SonarCloud') {
+                                                  sh 'mvn sonar:sonar'
                                         }
                               }
                     }
@@ -89,8 +95,7 @@ pipeline{
                                                                       /kaniko/executor \
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
-                                                                      --destination=\${DOCKER_REGISTRY}/${dockerImageName}:${version} \
-                                                                      --cache=true
+                                                                      --destination=\${DOCKER_REGISTRY}/${dockerImageName}:${version}
                                                             """
                                                   }
                                         }
