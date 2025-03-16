@@ -50,7 +50,7 @@ pipeline{
                                                                                                     </server>
                                                                                           </servers>
                                                                                 </settings>" > /root/.m2/settings.xml
-                                                                      mvn test
+                                                                      mvn clean test
                                                            """
                                                   }                                        
                                         }
@@ -67,7 +67,7 @@ pipeline{
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
-                                                            sh "mvn install -DskipTests=true"
+                                                            sh "mvn clean package -DskipTests=true"
                                                   }
                                         }
                               }
