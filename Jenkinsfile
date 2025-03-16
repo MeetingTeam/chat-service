@@ -13,7 +13,7 @@ def helmValueFile = "values.yaml"
 def dockerhubAccount = 'dockerhub'
 def githubAccount = 'github'
 
-def dockerfilePath = './'
+def dockerfilePath = '.'
 def migrationPath = 'src/main/resources/migration'
 def version = "v2.${BUILD_NUMBER}"
 
@@ -84,7 +84,7 @@ pipeline{
                                                             )
                                                   ]) {
                                                             sh """
-                                                                      echo '{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "\$DOCKER_USER:\$DOCKER_PASS" } } }' > /kaniko/.docker/config.json
+                                                                      echo "{ "auths": { "${DOCKER_REGISTRY}": { "auth": "$(echo -n ${DOCKER_USER}:${DOCKER_PASS} | base64)" } } }" > /kaniko/.docker/config.json
                                                                       /kaniko/executor \
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
