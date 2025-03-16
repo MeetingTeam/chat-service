@@ -85,8 +85,7 @@ pipeline{
                                                             )
                                                   ]) {
                                                             sh """
-                                                                      secretBase64=\$(echo -n \"\${DOCKER_USER}:\${DOCKER_PASS}\" | base64)
-                                                                      echo "{ \\"auths\\": { \\"\${DOCKER_REGISTRY}\\": { \\"auth\\": \\"\$secretBase64\\" } } }" > /kaniko/.docker/config.json
+                                                                      echo "{ \\"auths\\": { \\"\${DOCKER_REGISTRY}\\": { \\"auth\\": \\"\$(echo -n \${DOCKER_USER}:\${DOCKER_PASS} | base64)\\" } } }" > /kaniko/.docker/config.json
                                                                       /kaniko/executor \
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
@@ -108,7 +107,7 @@ pipeline{
                                                   )
                                         ]) {
                                                   sh """
-                                                            git clone ${k8SRepo} --branch ${k8SBranch}
+                                                            git clone ${k8SRepoUrl} --branch ${devBranch}
                                                             cd ${helmPath}
                                                             sed -i 's|  tag: .*|  tag: "${version}"|' ${helmValueFile}
 
