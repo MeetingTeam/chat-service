@@ -40,7 +40,7 @@ pipeline{
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
-                                                            sh "mvn test -Dusername=\$GIT_USER -Dpassword=\$GIT_PASS"
+                                                            sh "mvn test"
                                                   }
                                         }
                               }
