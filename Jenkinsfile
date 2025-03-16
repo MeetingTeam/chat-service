@@ -40,11 +40,11 @@ pipeline{
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
-                                                           sh '''
-                                                                      echo \${GIT_PASS}
-                                                                      echo \${GIT_USER}
+                                                           sh """
+                                                                      export GIT_PASS=\${GIT_PASS}
+                                                                      export GIT_USER=\${GIT_USER}
                                                                       mvn test
-                                                           '''
+                                                           """
                                                   }                                        
                                         }
                               }
@@ -76,7 +76,7 @@ pipeline{
                                                                       passwordVariable: 'DOCKER_PASS'
                                                             )
                                                   ]) {
-                                                            sh "
+                                                            sh """
                                                                       export DOCKER_CONFIG=\$(mktemp -d) && \
                                                                       echo '{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "'\$(echo -n "\$DOCKER_USER:\$DOCKER_PASS" | base64)'" } } }' > \$DOCKER_CONFIG/config.json && \
                                                                       /kaniko/executor \
@@ -86,7 +86,7 @@ pipeline{
                                                                       --cache=true \
                                                                       --cache-dir=/cache \
                                                                       --registry-config=\$DOCKER_CONFIG/config.json
-                                                            "
+                                                            """
                                                   }
                                         }
                               }
@@ -102,15 +102,15 @@ pipeline{
                                                   )
                                         ]) {
                                                   sh """
-                                                  git clone ${k8SRepo} --branch ${k8SBranch}
-                                                  cd ${helmPath}
-                                                  sed -i 's|  tag: .*|  tag: "${version}"|' ${helmValueFile}
+                                                            git clone ${k8SRepo} --branch ${k8SBranch}
+                                                            cd ${helmPath}
+                                                            sed -i 's|  tag: .*|  tag: "${version}"|' ${helmValueFile}
 
-                                                  git config --global user.email "kobiet@gmail.com"
-                                                  git config --global user.name "TeoTran"
-                                                  git add . 
-                                                  git commit -m "feat: update to version ${version}"
-                                                  git push https://${GIT_USER}:${GIT_PASS}@github.com/HungTran170904/${k8SRepoName}.git
+                                                            git config --global user.email "kobiet@gmail.com"
+                                                            git config --global user.name "TeoTran"
+                                                            git add . 
+                                                            git commit -m "feat: update to version ${version}"
+                                                            git push https://${GIT_USER}:${GIT_PASS}@github.com/HungTran170904/${k8SRepoName}.git
                                                   """		
 				}				
                               }
