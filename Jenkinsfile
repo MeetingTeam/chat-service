@@ -40,12 +40,12 @@ pipeline{
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
-                                                           sh "'
+                                                           sh "
                                                                       echo \${GIT_PASS}
                                                                       echo \${GIT_USER}
                                                                       mvn test
-                                                           "'
-                                                  }
+                                                           "
+                                                  }                                        
                                         }
                               }
                     }
@@ -60,7 +60,7 @@ pipeline{
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
-                                                            sh "mvn install -DskipTests=true -Dusername=\$GIT_USER -Dpassword=\$GIT_PASS"
+                                                            sh "mvn install -DskipTests=true"
                                                   }
                                         }
                               }
@@ -76,7 +76,7 @@ pipeline{
                                                                       passwordVariable: 'DOCKER_PASS'
                                                             )
                                                   ]) {
-                                                            sh '''
+                                                            sh "
                                                                       export DOCKER_CONFIG=\$(mktemp -d) && \
                                                                       echo '{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "'\$(echo -n "\$DOCKER_USER:\$DOCKER_PASS" | base64)'" } } }' > \$DOCKER_CONFIG/config.json && \
                                                                       /kaniko/executor \
@@ -86,7 +86,7 @@ pipeline{
                                                                       --cache=true \
                                                                       --cache-dir=/cache \
                                                                       --registry-config=\$DOCKER_CONFIG/config.json
-                                                            '''
+                                                            "
                                                   }
                                         }
                               }
