@@ -40,7 +40,11 @@ pipeline{
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
-                                                            sh "mvn test"
+                                                           sh '''
+                                                                      export GIT_USER=${GIT_USER}
+                                                                      export GIT_PASS=${GIT_PASS}
+                                                                      mvn test
+                                                            '''
                                                   }
                                         }
                               }
@@ -72,17 +76,17 @@ pipeline{
                                                                       passwordVariable: 'DOCKER_PASS'
                                                             )
                                                   ]) {
-                                                            sh """
-                                                            export DOCKER_CONFIG=\$(mktemp -d) && \
-                                                            echo '{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "'\$(echo -n "\$DOCKER_USER:\$DOCKER_PASS" | base64)'" } } }' > \$DOCKER_CONFIG/config.json && \
-                                                            /kaniko/executor \
-                                                            --context=\${dockerfilePath} \
-                                                            --dockerfile=\${dockerfilePath}/Dockerfile \
-                                                            --destination=\${DOCKER_REGISTRY}/\${DOCKER_IMAGE_NAME}:\${version} \
-                                                            --cache=true \
-                                                            --cache-dir=/cache \
-                                                            --registry-config=\$DOCKER_CONFIG/config.json
-                                                            """
+                                                            sh '''
+                                                                      export DOCKER_CONFIG=\$(mktemp -d) && \
+                                                                      echo '{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "'\$(echo -n "\$DOCKER_USER:\$DOCKER_PASS" | base64)'" } } }' > \$DOCKER_CONFIG/config.json && \
+                                                                      /kaniko/executor \
+                                                                      --context=\${dockerfilePath} \
+                                                                      --dockerfile=\${dockerfilePath}/Dockerfile \
+                                                                      --destination=\${DOCKER_REGISTRY}/\${DOCKER_IMAGE_NAME}:\${version} \
+                                                                      --cache=true \
+                                                                      --cache-dir=/cache \
+                                                                      --registry-config=\$DOCKER_CONFIG/config.json
+                                                            '''
                                                   }
                                         }
                               }
