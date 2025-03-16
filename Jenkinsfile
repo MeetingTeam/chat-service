@@ -40,11 +40,11 @@ pipeline{
                                                                       usernameVariable: 'GIT_USER'
                                                             )
                                                   ]) {
-                                                           sh "
+                                                           sh '''
                                                                       echo \${GIT_PASS}
                                                                       echo \${GIT_USER}
                                                                       mvn test
-                                                           "
+                                                           '''
                                                   }                                        
                                         }
                               }
