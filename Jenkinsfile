@@ -85,7 +85,7 @@ pipeline{
                                                             )
                                                   ]) {
                                                             sh """
-                                                                      echo "{ \"auths\": { \"\${DOCKER_REGISTRY}\": { \"auth\": \"\$(echo -n \${DOCKER_USER}:\${DOCKER_PASS} | base64)\" } } }" > /kaniko/.docker/config.json
+                                                                      echo "{ "auths": { "\${DOCKER_REGISTRY}": { "auth": "\$(echo -n \${DOCKER_USER}:\${DOCKER_PASS} | base64)" } } }" > /kaniko/.docker/config.json
                                                                       /kaniko/executor \
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
