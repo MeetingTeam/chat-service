@@ -16,6 +16,8 @@ def githubAccount = 'github'
 def dockerImageName = 'hungtran679/mt_chat-service'
 def dockerfilePath = '.'
 
+def sonarCloudOrganization = meetingteam
+
 
 def version = "v2.${BUILD_NUMBER}"
 
@@ -76,7 +78,7 @@ pipeline{
                               steps{
                                         container('maven'){
                                                   withSonarQubeEnv('SonarCloud') {
-                                                            sh 'mvn sonar:sonar'
+                                                            sh "mvn sonar:sonar -Dsonar.organization=${sonarCloudOrganization}"
                                                   }
                                         }
                               }
