@@ -16,6 +16,7 @@ def githubAccount = 'github'
 def dockerImageName = 'hungtran679/mt_chat-service'
 def dockerfilePath = '.'
 
+def kanikoCacheImage = 'hungtran679/mt_kaniko_cache'
 def sonarCloudOrganization = 'meetingteam'
 
 
@@ -106,7 +107,9 @@ pipeline{
                                                                       /kaniko/executor \
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
-                                                                      --destination=\${DOCKER_REGISTRY}/${dockerImageName}:${version}
+                                                                      --destination=\${DOCKER_REGISTRY}/${dockerImageName}:${version} \
+                                                                      --cache=true \
+                                                                      --cache-repo=\${DOCKER_REGISTRY}/${kanikoCacheImage}
                                                             """
                                                   }
                                         }
