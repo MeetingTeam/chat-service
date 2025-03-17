@@ -1,12 +1,11 @@
 def baseRepoUrl = 'https://github.com/MeetingTeam'
 def mainBranch = 'feature/cicd'
-def devBranch = 'dev'
+def testBranch = 'test'
 
 def appRepoName = 'chat-service'
 def appRepoUrl = "${baseRepoUrl}/${appRepoName}.git"
 
 def k8SRepoName = 'k8s-repo'
-def k8SRepoUrl = "${baseRepoUrl}/${k8SRepoName}.git"
 def helmPath = "${k8SRepoName}/application/${appRepoName}"
 def helmValueFile = "values.yaml"
 
@@ -119,7 +118,7 @@ pipeline{
                               when{ branch mainBranch }
                               steps{
                                         container('trivy'){
-                                                  sh "trivy image --severity HIGH,CRITICAL --exit-code 1 \${DOCKER_REGISTRY}/${dockerImageName}:${version}"
+                                                  sh "trivy image --timeout 15m --severity HIGH,CRITICAL --exit-code 1 \${DOCKER_REGISTRY}/${dockerImageName}:${version}"
                                         }
                               }
                     }
@@ -134,15 +133,15 @@ pipeline{
                                                   )
                                         ]) {
                                                   sh """
-                                                            git clone ${k8SRepoUrl} --branch ${devBranch}
+                                                            git clone https://\${GIT_USER}:\${GIT_PASS}@github.com/MeetingTeam/${k8SRepoName}.git --branch ${testBranch}
                                                             cd ${helmPath}
                                                             sed -i 's|  tag: .*|  tag: "${version}"|' ${helmValueFile}
 
-                                                            git config --global user.email "kobiet@gmail.com"
-                                                            git config --global user.name "TeoTran"
-                                                            git add . 
+                                                            git config --global user.email "jenkins@gmail.com"
+                                                            git config --global user.name "Jenkins"
+                                                            git add .
                                                             git commit -m "feat: update to version ${version}"
-                                                            git push https://${GIT_USER}:${GIT_PASS}@github.com/HungTran170904/${k8SRepoName}.git
+                                                            git push origin ${testBranch}
                                                   """		
 				}				
                               }
