@@ -115,6 +115,14 @@ pipeline{
                                         }
                               }
                     }
+                    stage('scan built image'){
+                              when{ branch mainBranch }
+                              steps{
+                                        container('trivy'){
+                                                  sh "trivy image --severity HIGH,CRITICAL --exit-code 1 \${DOCKER_REGISTRY}/${dockerImageName}:${version}"
+                                        }
+                              }
+                    }
                     stage('update k8s repo'){
                               when{ branch mainBranch }
                               steps {
