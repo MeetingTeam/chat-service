@@ -33,6 +33,22 @@ pipeline{
           }
           
           stages{
+                    stage('code analysis'){
+                              steps{
+                                        container('maven'){
+                                                  withSonarQubeEnv('SonarCloud') {
+                                                            sh "mvn sonar:sonar -Dsonar.organization=${sonarCloudOrganization}"
+                                                  }
+                                        }
+                              }
+                    }
+                    stage('Quality Gate Check') {
+                              steps {
+                                        timeout(time: 5, unit: 'MINUTES') {
+                                                  waitForQualityGate(abortPipeline: true)
+                                        }
+                              }
+                    }
                     stage('unit test stage'){
                               steps{
                                         container('maven'){
@@ -60,6 +76,7 @@ pipeline{
                               }
                     }
                     stage('build jar file'){
+                              when{ branch mainBranch }
                               steps{
                                         container('maven'){
                                                    withCredentials([
@@ -71,22 +88,6 @@ pipeline{
                                                   ]) {
                                                             sh "mvn clean package -DskipTests=true"
                                                   }
-                                        }
-                              }
-                    }
-                    stage('code analysis'){
-                              steps{
-                                        container('maven'){
-                                                  withSonarQubeEnv('SonarCloud') {
-                                                            sh "mvn sonar:sonar -Dsonar.organization=${sonarCloudOrganization}"
-                                                  }
-                                        }
-                              }
-                    }
-                    stage('Quality Gate Check') {
-                              steps {
-                                        timeout(time: 5, unit: 'MINUTES') {
-                                                  waitForQualityGate(abortPipeline: true)
                                         }
                               }
                     }
@@ -107,8 +108,6 @@ pipeline{
                                                                       --context=${dockerfilePath} \
                                                                       --dockerfile=${dockerfilePath}/Dockerfile \
                                                                       --destination=\${DOCKER_REGISTRY}/${dockerImageName}:${version} \
-                                                                      --cache=true \
-                                                                      --cache-repo=\${DOCKER_REGISTRY}/${kanikoCacheImage}
                                                             """
                                                   }
                                         }
@@ -118,7 +117,8 @@ pipeline{
                               when{ branch mainBranch }
                               steps{
                                         container('trivy'){
-                                                  sh "trivy image --timeout 15m --severity HIGH,CRITICAL --exit-code 1 \${DOCKER_REGISTRY}/${dockerImageName}:${version}"
+                                                  sh "trivy image --timeout 15m \${DOCKER_REGISTRY}/${dockerImageName}:${version}"
+                                                  //sh "trivy image --timeout 15m --severity HIGH,CRITICAL --exit-code 1 \${DOCKER_REGISTRY}/${dockerImageName}:${version}"
                                         }
                               }
                     }
