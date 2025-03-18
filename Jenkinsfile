@@ -33,8 +33,33 @@ pipeline{
           }
           
           stages{
-                     stage('build jar file'){
-                              when{ branch mainBranch }
+                      stage('unit test stage'){
+                              steps{
+                                        container('maven'){
+                                                  withCredentials([
+                                                            usernamePassword(
+                                                                      credentialsId: githubAccount, 
+                                                                      passwordVariable: 'GIT_PASS', 
+                                                                      usernameVariable: 'GIT_USER'
+                                                            )
+                                                  ]) {
+                                                           sh """
+                                                                      echo "<settings>
+                                                                                          <servers>
+                                                                                                    <server>
+                                                                                                              <id>github</id>
+                                                                                                              <username>\${GIT_USER}</username>
+                                                                                                              <password>\${GIT_PASS}</password>
+                                                                                                    </server>
+                                                                                          </servers>
+                                                                                </settings>" > /root/.m2/settings.xml
+                                                                      mvn clean test
+                                                           """
+                                                  }                                        
+                                        }
+                              }
+                    }
+                    stage('build jar file'){
                               steps{
                                         container('maven'){
                                                    withCredentials([
@@ -62,32 +87,6 @@ pipeline{
                               steps {
                                         timeout(time: 5, unit: 'MINUTES') {
                                                   waitForQualityGate(abortPipeline: true)
-                                        }
-                              }
-                    }
-                    stage('unit test stage'){
-                              steps{
-                                        container('maven'){
-                                                  withCredentials([
-                                                            usernamePassword(
-                                                                      credentialsId: githubAccount, 
-                                                                      passwordVariable: 'GIT_PASS', 
-                                                                      usernameVariable: 'GIT_USER'
-                                                            )
-                                                  ]) {
-                                                           sh """
-                                                                      echo "<settings>
-                                                                                          <servers>
-                                                                                                    <server>
-                                                                                                              <id>github</id>
-                                                                                                              <username>\${GIT_USER}</username>
-                                                                                                              <password>\${GIT_PASS}</password>
-                                                                                                    </server>
-                                                                                          </servers>
-                                                                                </settings>" > /root/.m2/settings.xml
-                                                                      mvn clean test
-                                                           """
-                                                  }                                        
                                         }
                               }
                     }
