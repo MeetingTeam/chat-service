@@ -33,6 +33,22 @@ pipeline{
           }
           
           stages{
+                     stage('build jar file'){
+                              when{ branch mainBranch }
+                              steps{
+                                        container('maven'){
+                                                   withCredentials([
+                                                            usernamePassword(
+                                                                      credentialsId: githubAccount, 
+                                                                      passwordVariable: 'GIT_PASS', 
+                                                                      usernameVariable: 'GIT_USER'
+                                                            )
+                                                  ]) {
+                                                            sh "mvn clean package -DskipTests=true"
+                                                  }
+                                        }
+                              }
+                    }
                     stage('code analysis'){
                               steps{
                                         container('maven'){
@@ -72,22 +88,6 @@ pipeline{
                                                                       mvn clean test
                                                            """
                                                   }                                        
-                                        }
-                              }
-                    }
-                    stage('build jar file'){
-                              when{ branch mainBranch }
-                              steps{
-                                        container('maven'){
-                                                   withCredentials([
-                                                            usernamePassword(
-                                                                      credentialsId: githubAccount, 
-                                                                      passwordVariable: 'GIT_PASS', 
-                                                                      usernameVariable: 'GIT_USER'
-                                                            )
-                                                  ]) {
-                                                            sh "mvn clean package -DskipTests=true"
-                                                  }
                                         }
                               }
                     }
