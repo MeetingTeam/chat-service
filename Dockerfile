@@ -12,7 +12,7 @@ RUN chown -R chat_service:chat_service /app
 USER chat_service
 
 # Run app
-ENTRYPOINT ["sh","-c","java -jar -Dspring.config.location=$CONFIG_PATH chat_service.war"]
+ENTRYPOINT ["sh","-c","java -jar -Dspring.config.location=${CONFIG_PATH} chat_service.war"]
 
 # Expose port 8082
 EXPOSE 8082
