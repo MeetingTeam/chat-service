@@ -12,8 +12,6 @@ def helmValueFile = "values.dev.yaml"
 def githubAccount = 'github'
 def kanikoAccount = 'kaniko'
 
-def imageVersion = "${appVersion}-${BUILD_NUMBER}"
-
 def trivyReportFile = 'trivy_report.html'
 
 pipeline{
@@ -24,9 +22,10 @@ pipeline{
           }
           
           environment {
-                    DOCKER_REGISTRY = 'registry-1.docker.io'
-                    DOCKER_IMAGE_NAME = 'hungtran679/mt_chat-service'
-                    DOCKER_IMAGE = "${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${imageVersion}"
+                DOCKER_REGISTRY = 'registry-1.docker.io'
+                DOCKER_IMAGE_NAME = 'hungtran679/mt_chat-service'
+                IMAGE_VERSION = "${appVersion}-${GIT_COMMIT.take(7)}-${BUILD_NUMBER}"
+                DOCKER_IMAGE = "${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_VERSION}"
           }
           
           stages{
@@ -59,20 +58,20 @@ pipeline{
                                         }
                               }
                     }
+                     stage('Compile code stage'){
+                          steps{
+                              container('maven'){
+                                  sh 'mvn clean compile'
+                              }
+                          }
+                    }
                     stage('Unit test stage'){
                               steps{
                                         container('maven'){
-                                            sh 'mvn clean test'                                     
+                                            sh 'mvn test'                                     
                                         }
                               }
-                    }
-                    stage('Build jar file'){
-                              steps{
-                                        container('maven'){
-                                                sh 'mvn clean package -DskipTests=true'
-                                        }
-                              }
-                    }
+                    }     
                     stage('Code analysis'){
                               steps{
                                         container('maven'){
@@ -86,6 +85,14 @@ pipeline{
                               steps {
                                         timeout(time: 5, unit: 'MINUTES') {
                                                   waitForQualityGate(abortPipeline: true)
+                                        }
+                              }
+                    }
+                    stage('Build jar file'){
+                              when{ branch mainBranch }
+                              steps{
+                                        container('maven'){
+                                                sh 'mvn clean package -DskipTests=true'
                                         }
                               }
                     }
@@ -145,12 +152,12 @@ pipeline{
                                                   sh """
                                                             git clone https://\${GIT_USER}:\${GIT_PASS}@github.com/MeetingTeam/${k8SRepoName}.git --branch ${mainBranch}
                                                             cd ${helmPath}
-                                                            sed -i "/imageTag:/s/:.*/: ${imageVersion}/" ${helmValueFile}
+                                                            sed -i "/imageTag:/s/:.*/: ${IMAGE_VERSION}/" ${helmValueFile}
 
                                                             git config --global user.email "jenkins@gmail.com"
                                                             git config --global user.name "Jenkins"
                                                             git add .
-                                                            git commit -m "feat: update application image of helm chart '${appRepoName}' to version ${imageVersion}"
+                                                            git commit -m "feat: update application image of helm chart '${appRepoName}' to version ${IMAGE_VERSION}"
                                                             git push origin ${mainBranch}
                                                   """		
 				                              }				
