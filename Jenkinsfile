@@ -14,6 +14,8 @@ def kanikoAccount = 'kaniko'
 
 def trivyReportFile = 'trivy_report.html'
 
+def sonarOrg = 'meetingteam'
+
 pipeline{
          agent {
                     kubernetes {
@@ -76,7 +78,7 @@ pipeline{
                               steps{
                                         container('maven'){
                                                   withSonarQubeEnv('SonarServer') {
-                                                            sh "mvn sonar:sonar -Dsonar.projectKey=${appRepoName}"
+                                                            sh "mvn sonar:sonar -Dsonar.organization=${sonarOrg}"
                                                   }
                                         }
                               }
