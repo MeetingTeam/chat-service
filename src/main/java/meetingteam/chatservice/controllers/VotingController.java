@@ -14,26 +14,26 @@ import org.springframework.web.bind.annotation.*;
 public class VotingController {
     private final VotingService votingService;
 
-    // @PostMapping
-    // public ResponseEntity<Void> createVoting(
-    //         @RequestBody @Valid CreateVotingMessageDto messageDto){
-    //     votingService.createVoting(messageDto);
-    //     return ResponseEntity.ok().build();
-    // }
+    @PostMapping
+    public ResponseEntity<Void> createVoting(
+            @RequestBody @Valid CreateVotingMessageDto messageDto){
+        votingService.createVoting(messageDto);
+        return ResponseEntity.ok().build();
+    }
 
-    // @PostMapping("/choose-option")
-    // public ResponseEntity<Void> chooseOption(
-    //         @RequestBody @Valid ChooseOptionDto optionDto){
-    //     votingService.chooseOption(optionDto.getMessageId(), optionDto.getOptionNames(),
-    //             optionDto.getNickName());
-    //     return ResponseEntity.ok().build();
-    // }
+    @PostMapping("/choose-option")
+    public ResponseEntity<Void> chooseOption(
+            @RequestBody @Valid ChooseOptionDto optionDto){
+        votingService.chooseOption(optionDto.getMessageId(), optionDto.getOptionNames(),
+                optionDto.getNickName());
+        return ResponseEntity.ok().build();
+    }
 
-    // @PostMapping("/block/{messageId}")
-    // public ResponseEntity<Void> blockVoting(
-    //         @PathVariable("messageId") String messageId,
-    //         @RequestParam("nickName") String nickName){
-    //     votingService.blockVoting(messageId, nickName);
-    //     return ResponseEntity.ok().build();
-    // }
+    @PostMapping("/block/{messageId}")
+    public ResponseEntity<Void> blockVoting(
+            @PathVariable("messageId") String messageId,
+            @RequestParam("nickName") String nickName){
+        votingService.blockVoting(messageId, nickName);
+        return ResponseEntity.ok().build();
+    }
 }
