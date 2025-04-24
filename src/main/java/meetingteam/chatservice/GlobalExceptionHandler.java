@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import meetingteam.chatservice.constraints.ExceptionTitle;
 import meetingteam.commonlibrary.dtos.ErrorDto;
 import meetingteam.commonlibrary.exceptions.BadRequestException;
 import org.slf4j.Logger;
@@ -32,21 +33,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({BadRequestException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<ErrorDto> handleBadRequestException(Exception ex){
         LOGGER.error(ex.getMessage());
-        var errorDto=new ErrorDto(HttpStatus.BAD_REQUEST,"Bad request", ex.getMessage());
+        var errorDto=new ErrorDto(HttpStatus.BAD_REQUEST, ExceptionTitle.BAD_REQUEST, ex.getMessage());
         return ResponseEntity.badRequest().body(errorDto);
     }
 
     @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<ErrorDto> handleAccessDeniedException(Exception ex){
         LOGGER.error(ex.getMessage());
-        var errorDto=new ErrorDto(HttpStatus.FORBIDDEN,"Access denied", ex.getMessage());
+        var errorDto=new ErrorDto(HttpStatus.FORBIDDEN, ExceptionTitle.ACCESS_DENIED, ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDto);
     }
 
     @ExceptionHandler({AuthorizationDeniedException.class})
     public ResponseEntity<ErrorDto> handleUnAuthorizedException(Exception ex){
         LOGGER.error(ex.getMessage());
-        var errorDto=new ErrorDto(HttpStatus.UNAUTHORIZED,"Unauthorized", ex.getMessage());
+        var errorDto=new ErrorDto(HttpStatus.UNAUTHORIZED, ExceptionTitle.UNAUTHORIZED, ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDto);
     }
 
@@ -57,7 +58,7 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach((error) -> {
             errors.put(error.getField(), error.getDefaultMessage());
         });
-        var errorDto= new ErrorDto(HttpStatus.BAD_REQUEST, "Validation error","", errors);
+        var errorDto= new ErrorDto(HttpStatus.BAD_REQUEST, ExceptionTitle.VALIDATION_ERROR,"", errors);
         return ResponseEntity.badRequest().body(errorDto);
     }
 
@@ -69,14 +70,14 @@ public class GlobalExceptionHandler {
         for(var violation : violations){
             errors.put(violation.getPropertyPath().toString(), violation.getMessage());
         }
-        var errorDto= new ErrorDto(HttpStatus.BAD_REQUEST, "Validation error","", errors);
+        var errorDto= new ErrorDto(HttpStatus.BAD_REQUEST, ExceptionTitle.VALIDATION_ERROR,"", errors);
         return ResponseEntity.badRequest().body(errorDto);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ErrorDto> handleHandlerMethodValidationException(HandlerMethodValidationException ex){
         LOGGER.error(ex.getMessage());
-        var errorDto= new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error",ex.getReason());
+        var errorDto= new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionTitle.UNKNOWN_ERROR,ex.getReason());
         return ResponseEntity.status(400).body(errorDto);
     }
 
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(errorDto.statusCode()).body(errorDto);
         } catch (Exception parseException) {
             LOGGER.error("Failed to parse error response: " + parseException.getMessage());
-            var errorDto= new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error",parseException.getMessage());
+            var errorDto= new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionTitle.UNKNOWN_ERROR,parseException.getMessage());
             return ResponseEntity.status(400).body(errorDto);
         }
     }
@@ -98,7 +99,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDto> handleUnknownException(Exception ex){
         LOGGER.error(ex.getMessage());
-        var errorDto= new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error",ex.getMessage());
+        var errorDto= new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionTitle.UNKNOWN_ERROR,ex.getMessage());
         return ResponseEntity.status(500).body(errorDto);
     }
 }
