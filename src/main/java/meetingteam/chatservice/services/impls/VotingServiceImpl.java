@@ -61,35 +61,55 @@ public class VotingServiceImpl implements VotingService {
 
     @Override
     public void chooseOption(String messageId, List<String> optionNames, String nickName) {
-        var userId= AuthUtil.getUserId();
-        var message=messageRepo.findById(messageId).orElseThrow(()->new BadRequestException("Message not found"));
+        var userId = AuthUtil.getUserId();
+        var message = messageRepo.findById(messageId)
+                .orElseThrow(() -> new BadRequestException("Message not found"));
 
-        if(message.getType() != MessageType.VOTING)
+        if (message.getType() != MessageType.VOTING) {
             throw new BadRequestException("This is not voting message");
-
-        var voting=message.getVoting();
-        var now=LocalDateTime.now();
-        if(voting.getIsBlocked()||(voting.getEndTime()!=null&&voting.getEndTime().isBefore(now)))
-            throw new BadRequestException("This voting has been blocked");
-
-        if(voting.getIsSingleAnswer()&&optionNames.size()>1)
-            throw new BadRequestException("You are allowed to choose just one option in this vote");
-        Boolean isVoted=false;
-        for(VotingOption option: voting.getOptions()){
-            if(optionNames.contains(option.getName())){
-                if(!option.getUserIds().contains(userId))
-                    option.getUserIds().add(userId);
-                else isVoted=true;
-            }
-            else option.getUserIds().remove(userId);
         }
 
-        var content= nickName+(isVoted?" has changed his options to ":" has choosed ")+
-                optionNames.stream().reduce("",(s,name)->s+name+",");
-        var event=new Event(content, now);
-        if(voting.getEvents()==null) voting.setEvents(new ArrayList());
-        voting.getEvents().add(event);
+        var voting = message.getVoting();
+        var now = LocalDateTime.now();
 
+        boolean votingEnded = voting.getEndTime() != null && voting.getEndTime().isBefore(now);
+        if (voting.getIsBlocked() || votingEnded) {
+            throw new BadRequestException("This voting has been blocked");
+        }
+
+        if (voting.getIsSingleAnswer() && optionNames.size() > 1) {
+            throw new BadRequestException("You are allowed to choose just one option in this vote");
+        }
+
+        boolean isVoted = false;
+        for (VotingOption option : voting.getOptions()) {
+            boolean selected = optionNames.contains(option.getName());
+            List<String> userIds = option.getUserIds();
+
+            if (selected) {
+                if (!userIds.contains(userId)) {
+                    userIds.add(userId);
+                } else {
+                    isVoted = true;
+                }
+            } else {
+                userIds.remove(userId);
+            }
+        }
+
+        StringBuilder builder = new StringBuilder(nickName);
+        builder.append(isVoted ? " has changed his options to " : " has choosed ");
+        for (String name : optionNames) {
+            builder.append(name).append(",");
+        }
+
+        String content = builder.toString();
+        var event = new Event(content, now);
+
+        if (voting.getEvents() == null) {
+            voting.setEvents(new ArrayList<>());
+        }
+        voting.getEvents().add(event);
         message.setCreatedAt(now);
         message.setVoting(voting);
         messageRepo.save(message);
