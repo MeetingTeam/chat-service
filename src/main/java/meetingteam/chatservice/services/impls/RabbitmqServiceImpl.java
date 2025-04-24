@@ -48,8 +48,4 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             throw new InternalServerException("Unable to send message");
         }
     }
-
-    public void broadcastMessage(Message message) {
-        
-    }
 }
