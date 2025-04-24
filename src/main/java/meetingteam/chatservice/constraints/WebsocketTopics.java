@@ -1,5 +1,5 @@
 package meetingteam.chatservice.constraints;
 
 public class WebsocketTopics {
-    public static final String AddOrUpdateMessage="message:add-or-update";
+    public static final String ADD_OR_UPDATE_MESSAGE="message:add-or-update";
 }

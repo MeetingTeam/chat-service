@@ -19,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MessageRepositoryImpl implements MessageRepository {
     private final MongoTemplate mongoTemplate;
+    private final String CHANNEL_ID = "channelId";
 
     @Override
     public Message save(Message message) {
@@ -45,7 +46,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public List<Message> getGroupMessages(String channelId, Pageable pageable) {
         Query query = new Query()
-                .addCriteria(Criteria.where("channelId").is(channelId))
+                .addCriteria(Criteria.where(CHANNEL_ID).is(channelId))
                 .with(pageable) // Apply pagination
                 .with(Sort.by(Sort.Direction.DESC, "createdAt")); // Sort by createdAt in descending order
         return mongoTemplate.find(query, Message.class);
@@ -66,7 +67,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public List<Message> getFileMessagesByChannelId(String channelId) {
         Query query = new Query()
-                .addCriteria(Criteria.where("channelId").is(channelId)
+                .addCriteria(Criteria.where(CHANNEL_ID).is(channelId)
                         .and("type").in(Arrays.asList(
                                 MessageType.AUDIO,
                                 MessageType.IMAGE,
@@ -92,7 +93,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public void deleteByChannelId(String channelId) {
         Query query = new Query()
-                .addCriteria(Criteria.where("channelId").is(channelId));
+                .addCriteria(Criteria.where(CHANNEL_ID).is(channelId));
         mongoTemplate.remove(query, Message.class);
     }
 
