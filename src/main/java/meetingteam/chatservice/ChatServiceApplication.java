@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(ServiceUrlConfig.class)
 public class ChatServiceApplication {
 
+    // Comment some thing
     public static void main(String[] args) {
         SpringApplication.run(ChatServiceApplication.class, args);
     }
