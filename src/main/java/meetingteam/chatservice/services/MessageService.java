@@ -10,7 +10,7 @@ public interface MessageService {
     Message unsendMessage(String messageId);
     Message reactMessage(String messageId, String emojiCode);
     List<Message> getTextChannelMessages(Integer receivedMessageNum, String channelId);
-    List<Message> getPrivateMessages(Integer receivedMessageNum, String friendId);
+    List<Message> getFriendMessages(Integer receivedMessageNum, String friendId);
     void deleteMessagesByChannelId(String channelId);
     void deleteMessagesByTeamId(String teamId);
 }

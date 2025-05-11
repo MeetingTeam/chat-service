@@ -6,10 +6,12 @@ import meetingteam.chatservice.dtos.MediaFile.CreatePresignedUrlDto;
 import meetingteam.chatservice.dtos.Message.CreateFileMessageDto;
 import meetingteam.chatservice.services.MediaFileService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/media-file")
+@PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
 public class MediaFileController {
     private final MediaFileService mediaFileService;

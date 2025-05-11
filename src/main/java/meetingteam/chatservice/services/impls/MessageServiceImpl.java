@@ -125,7 +125,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> getPrivateMessages(Integer receivedMessageNum, String friendId) {
+    public List<Message> getFriendMessages(Integer receivedMessageNum, String friendId) {
         String userId=AuthUtil.getUserId();
         if(!userService.isFriend(userId,friendId))
             throw new AccessDeniedException("You do not have permission to read messages from the given person");

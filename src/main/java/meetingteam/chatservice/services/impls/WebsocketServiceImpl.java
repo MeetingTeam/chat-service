@@ -16,11 +16,11 @@ public class WebsocketServiceImpl implements WebsocketService{
           @Override
           public void broadcastMessage(Message message) {
                     if(message.getRecipientId()!=null){
-                              rabbitmqService.sendToUser(message.getSenderId(),  WebsocketTopics.ADD_OR_UPDATE_MESSAGE, message);
-                              rabbitmqService.sendToUser(message.getRecipientId(), WebsocketTopics.ADD_OR_UPDATE_MESSAGE, message);
+                              rabbitmqService.sendToUser(message.getSenderId(),  WebsocketTopics.AddOrUpdateMessage, message);
+                              rabbitmqService.sendToUser(message.getRecipientId(), WebsocketTopics.AddOrUpdateMessage, message);
                     }
                     else {
-                              rabbitmqService.sendToTeam(message.getTeamId(), WebsocketTopics.ADD_OR_UPDATE_MESSAGE, message);
+                              rabbitmqService.sendToTeam(message.getTeamId(), WebsocketTopics.AddOrUpdateMessage, message);
                     }  
           }   
 }

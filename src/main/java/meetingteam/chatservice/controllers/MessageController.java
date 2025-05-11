@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/message")
+@PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
 public class MessageController {
     private final MessageService messageService;
@@ -38,21 +39,20 @@ public class MessageController {
         return ResponseEntity.ok(messageService.unsendMessage(messageId));
     }
 
-    @GetMapping("/private")
-    public ResponseEntity<List<Message>> getPrivateMessages(
-            @RequestParam("receivedMessageNum") Integer receivedMessageNum,
-            @RequestParam("friendId") String friendId){
-        return ResponseEntity.ok(messageService.getPrivateMessages(receivedMessageNum,friendId));
+    @GetMapping("/friend/{friendId}")
+    public ResponseEntity<List<Message>> getFriendMessages(
+            @RequestParam Integer receivedMessageNum,
+            @PathVariable String friendId){
+        return ResponseEntity.ok(messageService.getFriendMessages(receivedMessageNum,friendId));
     }
 
-    @GetMapping("/text_channel")
+    @GetMapping("/text_channel/{channelId}")
     public ResponseEntity<List<Message>> getTextChannelMessages(
-            @RequestParam("receivedMessageNum") Integer receivedMessageNum,
-            @RequestParam("channelId") String channelId){
+            @RequestParam Integer receivedMessageNum,
+            @PathVariable String channelId){
         return ResponseEntity.ok(messageService.getTextChannelMessages(receivedMessageNum,channelId));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/private/channel/{channelId}")
     public ResponseEntity<Void> deleteMessagesByChannelId(
             @PathVariable("channelId") String channelId){
@@ -60,7 +60,6 @@ public class MessageController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/private/team/{teamId}")
     public ResponseEntity<Void> deleteMessagesByTeamId(
             @PathVariable("teamId") String teamId){

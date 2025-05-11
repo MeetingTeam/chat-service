@@ -94,7 +94,7 @@ pipeline{
                               when{ branch mainBranch }
                               steps{
                                         container('maven'){
-                                                sh 'mvn clean package -DskipTests=true'
+                                                sh 'mvn package -DskipTests=true'
                                         }
                               }
                     }
