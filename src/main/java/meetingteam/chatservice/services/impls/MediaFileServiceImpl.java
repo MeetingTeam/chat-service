@@ -20,8 +20,6 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -104,7 +102,8 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     public void deleteMediaFile(MediaFile mediaFile){
         try{
-            DeleteObjectRequest deleteRequest= DeleteObjectRequest.builder()
+            DeleteObjectRequest deleteRequest= DeleteObjectRequest
+                    .builder()
                     .bucket(bucketName)
                     .key(mediaFile.getFileName())
                     .build();

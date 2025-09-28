@@ -1,6 +1,8 @@
 package meetingteam.chatservice.services.impls;
 
 import lombok.RequiredArgsConstructor;
+import meetingteam.chatservice.configs.AnomalyConfig;
+import meetingteam.chatservice.constraints.AnomalyTypes;
 import meetingteam.chatservice.dtos.Message.CreateTextMessageDto;
 import meetingteam.chatservice.models.MediaFile;
 import meetingteam.chatservice.models.Message;
@@ -8,6 +10,7 @@ import meetingteam.chatservice.models.Reaction;
 import meetingteam.chatservice.models.enums.MessageType;
 import meetingteam.chatservice.repositories.MessageRepository;
 import meetingteam.chatservice.services.*;
+import meetingteam.chatservice.utils.AnomalyUtil;
 import meetingteam.commonlibrary.exceptions.BadRequestException;
 import meetingteam.commonlibrary.utils.AuthUtil;
 import meetingteam.commonlibrary.utils.PageUtil;
@@ -15,6 +18,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import io.opentelemetry.api.trace.Span;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +35,7 @@ public class MessageServiceImpl implements MessageService {
     private final TeamService teamService;
     private final WebsocketService websocketService;
     private final ModelMapper modelMapper;
+    private final AnomalyConfig anomalyConfig;
 
     @Override
     public void receiveTextMessage(CreateTextMessageDto messageDto) {
@@ -39,12 +45,12 @@ public class MessageServiceImpl implements MessageService {
         if(message.getRecipientId()!=null){
             if(!userService.isFriend(userId, message.getRecipientId()))
                 throw new AccessDeniedException("You are not friend of the recipient");
-            message.setChannelId(null);
+                message.setChannelId(null);
         }
         else if(message.getChannelId()!=null){
             if(!teamService.isMemberOfTeam(userId, message.getTeamId(), message.getChannelId()))
                 throw new AccessDeniedException("You are not member of the team");
-        }
+            }
         else throw new BadRequestException("Either RecipientId or ChannelId must not be null");
 
         message.setSenderId(userId);
@@ -113,8 +119,21 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<Message> getTextChannelMessages(Integer receivedMessageNum, String channelId) {
         String userId=AuthUtil.getUserId();
-        if(!teamService.isMemberOfTeam(userId, null, channelId))
-            throw new AccessDeniedException("You do not have permission to read messages from the given channel");
+
+        if(anomalyConfig.enableMissSpan()){
+            AnomalyUtil.markAnomalySpan(AnomalyTypes.MISS_SPAN);
+        }
+        else{
+            int loopNum = 1;
+            if(anomalyConfig.enableFanoutCall()){
+                loopNum = 3;
+                AnomalyUtil.markAnomalySpan(AnomalyTypes.FAN_OUT_CALL);
+            }
+            for(int i=0; i<loopNum; i++){
+                if(!teamService.isMemberOfTeam(userId, null, channelId))
+                throw new AccessDeniedException("You do not have permission to read messages from the given channel");
+            }
+        }
 
         int pageSize= PageUtil.findBestPageSize(receivedMessageNum);
         PageRequest pageRequest=PageRequest.of(receivedMessageNum/pageSize,pageSize);
@@ -127,8 +146,20 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<Message> getFriendMessages(Integer receivedMessageNum, String friendId) {
         String userId=AuthUtil.getUserId();
-        if(!userService.isFriend(userId,friendId))
-            throw new AccessDeniedException("You do not have permission to read messages from the given person");
+        if(anomalyConfig.enableMissSpan()){
+            AnomalyUtil.markAnomalySpan(AnomalyTypes.MISS_SPAN);
+        }
+        else{
+            int loopNum = 1;
+            if(anomalyConfig.enableFanoutCall()){
+                loopNum = 3;
+                AnomalyUtil.markAnomalySpan(AnomalyTypes.FAN_OUT_CALL);
+            }
+            for(int i=0; i<loopNum; i++){
+                if(!userService.isFriend(userId,friendId))
+                throw new AccessDeniedException("You do not have permission to read messages from the given person");
+            }
+        }
 
         int pageSize= PageUtil.findBestPageSize(receivedMessageNum);
         PageRequest pageRequest=PageRequest.of(receivedMessageNum/pageSize,pageSize);
