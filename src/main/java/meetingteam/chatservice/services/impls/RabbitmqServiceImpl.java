@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import io.opentelemetry.api.trace.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import meetingteam.chatservice.configs.AnomalyConfig;
@@ -12,7 +11,6 @@ import meetingteam.chatservice.constraints.AnomalyTypes;
 import meetingteam.chatservice.services.RabbitmqService;
 import meetingteam.chatservice.utils.AnomalyUtil;
 import meetingteam.commonlibrary.dtos.SocketDto;
-import meetingteam.commonlibrary.exceptions.InternalServerException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,22 +31,13 @@ public class RabbitmqServiceImpl implements RabbitmqService {
     @Override
     public void sendToUser(String userId, String topic, Object payload) {
         try{
-            if( anomalyConfig.enableMissSpan()){
-                AnomalyUtil.markAnomalySpan(AnomalyTypes.MISS_SPAN);
+            if(anomalyConfig.enableDownServices() && anomalyConfig.downServicesList().contains("websocket-service")){
+                AnomalyUtil.markAnomalySpan(AnomalyTypes.DOWN_SERVICES);
             }
-            else{
-                int loopNum = 1;
-                if(anomalyConfig.enableFanoutCall()){
-                    loopNum = 10;
-                    AnomalyUtil.markAnomalySpan(AnomalyTypes.FAN_OUT_CALL);
-                }
-                for(int i=0; i<loopNum; i++){
-                    String dest="/topic/user."+userId;
-                    SocketDto socketDto = new SocketDto(dest, topic, payload);
-                    String jsonData = objectMapper.writeValueAsString(socketDto);
-                    rabbitTemplate.convertAndSend(exchangeName,dest, jsonData);
-                }
-            }
+            String dest="/topic/user."+userId;
+            SocketDto socketDto = new SocketDto(dest, topic, payload);
+            String jsonData = objectMapper.writeValueAsString(socketDto);
+            rabbitTemplate.convertAndSend(exchangeName,dest, jsonData);
         }
         catch(Exception e){
             log.error(e.getMessage());
@@ -57,22 +46,13 @@ public class RabbitmqServiceImpl implements RabbitmqService {
 
     public void sendToTeam(String teamId, String topic, Object payload){
         try{
-            if( anomalyConfig.enableMissSpan()){
-                AnomalyUtil.markAnomalySpan(AnomalyTypes.MISS_SPAN);
+            if(anomalyConfig.enableDownServices() && anomalyConfig.downServicesList().contains("websocket-service")){
+                AnomalyUtil.markAnomalySpan(AnomalyTypes.DOWN_SERVICES);
             }
-            else{
-                int loopNum = 1;
-                if(anomalyConfig.enableFanoutCall()){
-                    loopNum = 10;
-                    AnomalyUtil.markAnomalySpan(AnomalyTypes.FAN_OUT_CALL);
-                }
-                for(int i=0; i<loopNum; i++){
-                    String dest= "/topic/team."+teamId;
-                    SocketDto socketDto = new SocketDto(dest,topic, payload);
-                    String jsonData = objectMapper.writeValueAsString(socketDto);
-                    rabbitTemplate.convertAndSend(exchangeName, dest, jsonData);
-                }
-            }
+            String dest= "/topic/team."+teamId;
+            SocketDto socketDto = new SocketDto(dest,topic, payload);
+            String jsonData = objectMapper.writeValueAsString(socketDto);
+            rabbitTemplate.convertAndSend(exchangeName, dest, jsonData);
         }
         catch(Exception e){
             log.error(e.getMessage());
