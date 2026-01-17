@@ -67,4 +67,10 @@ public class MessageController {
         messageService.deleteMessagesByTeamId(teamId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/private/all")
+    public ResponseEntity<Void> deleteAll(){
+        messageService.deleteAll();
+        return ResponseEntity.ok().build();
+    }
 }

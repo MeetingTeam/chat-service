@@ -103,4 +103,9 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .addCriteria(Criteria.where("teamId").is(teamId));
         mongoTemplate.remove(query, Message.class);
     }
+
+    @Override
+    public void deleteAll() {
+        mongoTemplate.remove(new Query(), Message.class);
+    }
 }

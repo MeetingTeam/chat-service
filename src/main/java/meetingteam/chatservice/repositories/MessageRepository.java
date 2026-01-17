@@ -18,4 +18,6 @@ public interface MessageRepository extends BaseRepository<Message, String> {
     void deleteByChannelId(String channelId);
 
     void deleteByTeamId(String teamId);
+
+    void deleteAll();
 }
